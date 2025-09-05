@@ -8,7 +8,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:4432/{db-name}
+    url: jdbc:postgresql://localhost:5431/springboot-jpa
     username: admin
     password: admin
     max-active: 5
@@ -21,3 +21,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+#  security:
+#    oauth2:
+#      client:
+#        resourceserver:
+#          jwt:
+#            issuer-uri: http://localhost:8080/realms/sso-exercise

@@ -35,6 +35,9 @@ dependencies {
     implementation("org.projectlombok:lombok:1.18.38")
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+
+    // oauth2 server
+//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 }
 
 tasks.named('test') {
