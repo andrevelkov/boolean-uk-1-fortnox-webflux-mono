@@ -23,21 +23,23 @@ public class MessageController {
         this.userRepo = userRepo;
     }
 
-    @PostMapping("/{target_user}")
+    @PostMapping
     public Mono<ResponseEntity<Void>> sendMessage(
             @RequestBody Message message,
-            @PathVariable(required = false) Integer target_user) {
+            @RequestParam(required = false) Integer target_user) {
 
         return Mono.fromCallable(() -> {
-            Optional<User> target = userRepo.findById(target_user);
+            if (target_user != null) {
+                Optional<User> target = userRepo.findById(target_user);
 
-            if (target.isEmpty()) {
-                return ResponseEntity.notFound().<Void>build();
+                if (target.isEmpty())
+                    return ResponseEntity.notFound().<Void>build();
+
+                message.setTargetUser(target.get());
+//                target.get().setMessages();
             }
 
-            message.setTargetUser(target.get());
-            messageRepo.save((message));
-
+            messageRepo.save(message);
             return ResponseEntity.ok().<Void>build();
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -53,10 +55,10 @@ public class MessageController {
                         return Mono.just(ResponseEntity.notFound().<List<Message>>build());
 
                     User user = userOpt.get();
-                    List<Message> messages = messageRepo.findByTargetUser(user);
+                    List<Message> messages = messageRepo.findMessagesForUserOrBroadcast(user);
 
                     if (!messages.isEmpty()) {
-                        messageRepo.deleteAll();
+                        messageRepo.deleteAll(messages);
                         return Mono.just(ResponseEntity.ok(messages));
                     }
 
@@ -68,12 +70,14 @@ public class MessageController {
 
     private Mono<List<Message>> pollForNextMessage(User user) {
 
-        return Mono.fromCallable(() -> messageRepo.findByTargetUser(user))
+        return Mono.fromCallable(() -> messageRepo.findMessagesForUserOrBroadcast(user))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(messages -> {
 
-                    if (!messages.isEmpty())
+                    if (!messages.isEmpty()) {
+                        messageRepo.deleteAll(messages);
                         return Mono.just(messages);
+                    }
 
                     return Mono.delay(Duration.ofSeconds(2))
                             .then(pollForNextMessage(user));

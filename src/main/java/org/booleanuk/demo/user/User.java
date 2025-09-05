@@ -25,4 +25,8 @@ public class User {
     @OneToMany(mappedBy = "targetUser")
     @JsonManagedReference
     private List<Message> messages;
+
+    public void addToList(Message message) {
+        messages.add(message);
+    }
 }

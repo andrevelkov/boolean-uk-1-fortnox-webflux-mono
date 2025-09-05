@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.booleanuk.demo.user.User;
 
-import java.time.LocalDate;
-
 @Data
 @Entity
 @Table(name = "messages")
