@@ -26,7 +26,4 @@ public class User {
     @JsonManagedReference
     private List<Message> messages;
 
-    public void addToList(Message message) {
-        messages.add(message);
-    }
 }

@@ -36,10 +36,20 @@ public class MessageController {
                     return ResponseEntity.notFound().<Void>build();
 
                 message.setTargetUser(target.get());
-//                target.get().setMessages();
+                messageRepo.save(message);
+                return ResponseEntity.ok().<Void>build();
             }
 
-            messageRepo.save(message);
+            // Broadcast message create a copy per user, for managing the deletion after response
+            List<User> allUsers = userRepo.findAll();
+            for (User user: allUsers) {
+                Message copy = new Message();
+                copy.setText(message.getText());
+                copy.setDate(message.getDate());
+                copy.setTargetUser(user);
+                messageRepo.save(copy);
+            }
+
             return ResponseEntity.ok().<Void>build();
         }).subscribeOn(Schedulers.boundedElastic());
     }
